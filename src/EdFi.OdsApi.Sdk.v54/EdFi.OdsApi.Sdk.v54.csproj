@@ -12,7 +12,7 @@
     <Description>A library generated from a OpenAPI doc</Description>
     <Copyright>No Copyright</Copyright>
     <RootNamespace>EdFi.OdsApi.Sdk.v54</RootNamespace>
-    <Version>1.0.7</Version>
+    <Version>1.0.0</Version>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EdFi.OdsApi.Sdk.v54.xml</DocumentationFile>
     <RepositoryUrl>https://github.com/ednexusdata/edfi-odsapi-sdk-v54.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
