@@ -4,7 +4,7 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo> <!-- setting GenerateAssemblyInfo to false causes this bug https://github.com/dotnet/project-system/issues/3934 -->
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>EdFi.OdsApi.Sdk.v54</AssemblyName>
-    <PackageId>EdFi.OdsApi.Sdk.v54</PackageId>
+    <PackageId>EdNexusData.EdFi.OdsApi.Sdk.v54</PackageId>
     <OutputType>Library</OutputType>
     <Authors>OpenAPI</Authors>
     <Company>OpenAPI</Company>
