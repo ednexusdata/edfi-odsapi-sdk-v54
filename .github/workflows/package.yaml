@@ -1,0 +1,65 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Bump build version
+        id: bump
+        uses: vers-one/dotnet-project-version-updater@v1.7
+        with:
+          file: |
+            "src/EdFi.OdsApi.Sdk.v54/**/*.csproj", "src/EdFi.OdsApi.Sdk.v54/**/*.nuspec", "src/EdFi.OdsApi.Sdk.v54/**/AssemblyInfo.cs"
+          version: bump-build
+      - name: Commit build version
+        run: |
+          git config user.name "GH Action ${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add .
+          git commit -m "Bump project version to ${{ steps.bump.outputs.newVersion }}"
+          git push
+      - name: EdFi.OdsApi.Sdk - Restore dependencies
+        run: dotnet restore
+        working-directory: src/EdFi.OdsApi.Sdk.v54
+      - name: EdFi.OdsApi.Sdk - Build
+        run: dotnet build --no-restore
+        working-directory: src/EdFi.OdsApi.Sdk.v54
+      - name: EdFi.OdsApi.Sdk - Test
+        run: dotnet test --no-build --verbosity normal
+        working-directory: src/EdFi.OdsApi.Sdk.v54
+      - name: EdFi.OdsApi.Sdk - Upload a Build Artifact
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: EdFi.OdsApi.Sdk
+          path: src/EdFi.OdsApi.Sdk.v54/bin/Debug/net8.0/**/*
+      - name: EdFi.OdsApi.Sdk - Package
+        run: dotnet pack -c Release -o "pack/" -property:commit=$COMMIT -property:NuspecFile=EdFi.OdsApi.Sdk.v54.nuspec
+        env:
+          COMMIT: ${{ github.sha }}
+        working-directory: src/EdFi.OdsApi.Sdk.v54
+      - name: EdFi.OdsApi.Sdk - Upload package
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: EdFi.OdsApi.Sdk.v54.nupkg
+          path: src/EdFi.OdsApi.Sdk.v54/pack/**/*
+      - name: EdFi.OdsApi.Sdk - Add Package Source
+        run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/ednexusdata/index.json"
+        working-directory: src/EdFi.OdsApi.Sdk.v54
+      - name: EdFi.OdsApi.Sdk - Publish Package
+        run: dotnet nuget push "pack/EdFi.OdsApi.Sdk.v54.${{ steps.bump.outputs.newVersion }}.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+        working-directory: src/EdFi.OdsApi.Sdk.v54
